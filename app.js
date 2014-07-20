@@ -8,18 +8,15 @@ var chokidar = require('chokidar');
 
 // configuration
 var budgetdir = "/Users/bfulop/Dropbox/YNAB/Balint and family budget Before Fresh Start on 2012-04-08~742C2AC5.ynab4";
+var siftterLogFile = "/Users/bfulop/Dropbox/IFTTT/Sifttter/purchases.txt";
 
+var init;
 var FullBudget;
 var watcher;
 var LogPurchase;
 var CategoryName;
 var BudgetCategories;
-var init;
-
-var myresult;
-var myarray = ["egy", "ketto", "harom"];
-
-
+var updateLogFile;
 
 
 getCategoryName = function (categories, categoryId) {
@@ -40,12 +37,17 @@ getCategoryName = function (categories, categoryId) {
 
 };
 
+updateLogFile = function (data) {
+    fs.appendFile(siftterLogFile, data, function (err) {
+        if (err) throw err;
+    });
+};
+
 LogPurchase = function (data) {
     var sifttterLine, today;
     today = new Date();
-    sifttterLine = "- " + data.items[0].date + " at " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " - Spent " + Math.abs(data.items[0].amount) + " at " + data.items[1].name + " for " + getCategoryName(BudgetCategories, data.items[0].categoryId);
-
-    console.log(sifttterLine);
+    sifttterLine = "- " + data.items[0].date + " at " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " - Spent " + Math.abs(data.items[0].amount) + " at " + data.items[1].name + " for " + getCategoryName(BudgetCategories, data.items[0].categoryId) + "\n";
+    updateLogFile(sifttterLine);
 
 };
 
@@ -84,14 +86,12 @@ init = function () {
 
     watcher = chokidar.watch(budgetfolder, {persistent: true, ignoreInitial: true});
     watcher.on('add', function (path) {
-        console.log('File', path, 'has been added');
         processPurchase(path);
     });
 
 
-    processPurchase('/Users/bfulop/Dropbox/YNAB/Balint and family budget Before Fresh Start on 2012-04-08~742C2AC5.ynab4/data3-787F1717/60-33-4B-D1-EC-9C/A-13783,B-1917,C-33_B-1919.ydiff');
+//    processPurchase('/Users/bfulop/Dropbox/YNAB/Balint and family budget Before Fresh Start on 2012-04-08~742C2AC5.ynab4/data3-787F1717/60-33-4B-D1-EC-9C/A-13783,B-1917,C-33_B-1919.ydiff');
 
-    console.log(budgetfolder);
 
 
 };
