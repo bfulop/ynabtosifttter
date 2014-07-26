@@ -16,6 +16,8 @@ var watcher;
 var LogPurchase;
 var CategoryName;
 var BudgetCategories;
+var getMonth;
+var getCategoryName;
 var updateLogFile;
 
 
@@ -37,6 +39,11 @@ getCategoryName = function (categories, categoryId) {
 
 };
 
+getMonth = function (monthNumber) {
+    var month = ["January", "February", "March", "April", "May", "June", "July", "August", "October", "November", "December"];
+    return month[parseInt(monthNumber, 10)];
+};
+
 updateLogFile = function (data) {
     fs.appendFile(siftterLogFile, data, function (err) {
         if (err) throw err;
@@ -44,9 +51,17 @@ updateLogFile = function (data) {
 };
 
 LogPurchase = function (data) {
-    var sifttterLine, today;
+    var sifttterLine, today, saveddate, getDataItem;
+    saveddate = data.items[0].date.split("-");
     today = new Date();
-    sifttterLine = "- " + data.items[0].date + " at " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " - Spent " + Math.abs(data.items[0].amount) + " at " + data.items[1].name + " for " + getCategoryName(BudgetCategories, data.items[0].categoryId) + "\n";
+    getDataItem = function (dataName) {
+        var step = 0;
+        while ((!this.items[step][dataName]) && step < this.items.length - 1) {
+            step += 1;
+        }
+        return this.items[step][dataName] || " not specified ";
+    };
+    sifttterLine = "- " + getMonth(saveddate[1]) + " " + saveddate[2] + ", " + saveddate[0] + " at " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds() + " - Spent " + Math.abs(data.items[0].amount) + " at " + getDataItem.call(data, "name") + " for " + getDataItem.call(data, "memo") + " in " + getCategoryName(BudgetCategories, data.items[0].categoryId) + " @done \n";
     updateLogFile(sifttterLine);
 
 };
@@ -90,7 +105,7 @@ init = function () {
     });
 
 
-//    processPurchase('/Users/bfulop/Dropbox/YNAB/Balint and family budget Before Fresh Start on 2012-04-08~742C2AC5.ynab4/data3-787F1717/60-33-4B-D1-EC-9C/A-13783,B-1917,C-33_B-1919.ydiff');
+    processPurchase('/Users/bfulop/Dropbox/YNAB/Balint and family budget Before Fresh Start on 2012-04-08~742C2AC5.ynab4/data3-787F1717/60-33-4B-D1-EC-9C/A-13783,B-1964,C-33_B-1966.ydiff');
 
 
 
